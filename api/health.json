@@ -1,0 +1,8 @@
+{
+  "status": "online",
+  "framework": "PyTorch 3D Multi-Planar Conv3D + CBAM",
+  "device": "PyTorch 3D (Vercel Edge / Cloud Acceleration)",
+  "weights_loaded": false,
+  "resolution": "50 Slices @ 224x224 Full HD (Axial, Coronal, Sagittal)",
+  "disclaimer": "Research use only \u2014 not for clinical diagnostic use."
+}

@@ -1,0 +1,10 @@
+{
+  "name": "neuroframework-preview",
+  "version": "2.1.0",
+  "description": "3D-sMRI Volumetric Deep Learning Research Workstation (Preview)",
+  "homepage": "https://neuroframework.swayamruparel.com",
+  "author": "Swayam Ruparel <swayam.ruparel@gmail.com>",
+  "scripts": {
+    "dev": "npx serve ."
+  }
+}
