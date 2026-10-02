@@ -26,6 +26,9 @@ document.addEventListener('DOMContentLoaded', () => {
     btnShowSpecs: document.getElementById('btn-show-methodology'),
     modalSpecs: document.getElementById('modal-specs'),
     btnCloseModal: document.getElementById('btn-close-modal'),
+    modalCustomUpload: document.getElementById('modal-custom-upload'),
+    btnCloseCustomUpload: document.getElementById('btn-close-custom-upload'),
+    btnSelectSampleFromModal: document.getElementById('btn-select-sample-from-modal'),
 
     // Ingestion
     dropzone: document.getElementById('mri-dropzone'),
@@ -224,8 +227,13 @@ document.addEventListener('DOMContentLoaded', () => {
     el.btnRunAnalysis.disabled = false;
 
     // Show indicator in raw preview
-    el.rawDimBadge.textContent = 'Upload Ready';
-    el.rawEmptyPlaceholder.innerHTML = `<span><strong>${file.name}</strong> ready.<br>Click "Run Analysis" to inspect raw scan and process.</span>`;
+    el.rawDimBadge.textContent = 'Upload Ready (Preview Mode)';
+    el.rawEmptyPlaceholder.innerHTML = `<span><strong>${file.name}</strong> loaded.<br>Click "Run Analysis" to view web preview details or select a pre-computed cohort sample.</span>`;
+
+    // Inform user of preview environment
+    if (el.modalCustomUpload) {
+      el.modalCustomUpload.classList.remove('hidden');
+    }
   }
 
   el.btnClearFile.addEventListener('click', (e) => {
@@ -295,6 +303,20 @@ document.addEventListener('DOMContentLoaded', () => {
   // --------------------------------------------------------------------------
   el.btnRunAnalysis.addEventListener('click', async () => {
     if (state.isProcessing) return;
+
+    // In web preview mode, live neural processing on custom uploads requires the full application
+    if (state.activeFile) {
+      if (el.modalCustomUpload) {
+        el.modalCustomUpload.classList.remove('hidden');
+      }
+      return;
+    }
+
+    if (!state.activeDemoId) {
+      alert('Please select a verified ABIDE-I cohort sample to evaluate.');
+      return;
+    }
+
     state.isProcessing = true;
     el.btnRunAnalysis.disabled = true;
     el.pipelineBadge.textContent = 'Processing';
@@ -304,23 +326,9 @@ document.addEventListener('DOMContentLoaded', () => {
     animateStepperProgression();
 
     try {
-      let response;
-      if (state.activeFile) {
-        const formData = new FormData();
-        formData.append('file', state.activeFile);
-        if (el.inputAge.value) formData.append('age', el.inputAge.value);
-        if (el.inputSex.value) formData.append('sex', el.inputSex.value);
-        if (el.inputSite.value) formData.append('site', el.inputSite.value);
-
-        response = await fetch('/api/upload', {
-          method: 'POST',
-          body: formData
-        });
-      } else if (state.activeDemoId) {
-        response = await fetch(`/api/demo/${state.activeDemoId}`, {
-          method: 'POST'
-        });
-      }
+      const response = await fetch(`/api/demo/${state.activeDemoId}`, {
+        method: 'POST'
+      });
 
       if (!response.ok) {
         const err = await response.json();
@@ -762,6 +770,41 @@ Investigational research software under ABIDE-I benchmark protocol (Hammash & Yo
   el.modalSpecs.addEventListener('click', (e) => {
     if (e.target === el.modalSpecs) el.modalSpecs.classList.add('hidden');
   });
+
+  // Custom Upload Guidance Modal Handlers
+  if (el.btnCloseCustomUpload) {
+    el.btnCloseCustomUpload.addEventListener('click', () => {
+      el.modalCustomUpload.classList.add('hidden');
+    });
+  }
+
+  if (el.modalCustomUpload) {
+    el.modalCustomUpload.addEventListener('click', (e) => {
+      if (e.target === el.modalCustomUpload) el.modalCustomUpload.classList.add('hidden');
+    });
+  }
+
+  if (el.btnSelectSampleFromModal) {
+    el.btnSelectSampleFromModal.addEventListener('click', () => {
+      if (el.modalCustomUpload) el.modalCustomUpload.classList.add('hidden');
+
+      // Clear uploaded file state if any
+      if (state.activeFile) {
+        state.activeFile = null;
+        el.fileInput.value = '';
+        el.fileLoadedView.classList.add('hidden');
+        el.dropzone.querySelector('.dropzone-content').classList.remove('hidden');
+      }
+
+      // Automatically select first demo if none selected
+      const demoKeys = Object.keys(state.demoCatalog);
+      if (demoKeys.length > 0) {
+        const targetId = state.activeDemoId || demoKeys[0];
+        el.demoSelect.value = targetId;
+        el.demoSelect.dispatchEvent(new Event('change'));
+      }
+    });
+  }
 
   // Initialize
   initSystem();

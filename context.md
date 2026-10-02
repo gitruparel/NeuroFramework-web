@@ -2,11 +2,14 @@
 
 ## 1. Executive Summary & Deployment Blueprint
 
-**NeuroFramework 3D-sMRI** is an interactive, browser-based neuroimaging research workstation for 3D structural Magnetic Resonance Imaging (sMRI) volumetric deep learning. It evaluates Autism Spectrum Disorder (ASD) neuroanatomical biomarkers on the benchmark **Autism Brain Imaging Data Exchange (ABIDE-I)** cohort (N=395).
+**NeuroFramework 3D-sMRI Web Preview** is a lightweight, interactive, browser-based neuroimaging research workstation for 3D structural Magnetic Resonance Imaging (sMRI) volumetric deep learning. It demonstrates Autism Spectrum Disorder (ASD) neuroanatomical biomarker evaluation on the benchmark **Autism Brain Imaging Data Exchange (ABIDE-I)** cohort (N=395).
 
-* **Production Web URL:** https://neuroframework.swayamruparel.com
-* **GitHub Repository:** https://github.com/gitruparel/NeuroFramework-web
-* **Hosting Platform:** Vercel (Edge Network / Static CDN with Rewrites)
+* **Edition:** Web Preview (Demonstration of Full Application)
+* **Custom Domain Status:** Pending / Not yet connected to domain (serving via Vercel deployment URL).
+* **Neural Processing on Vercel:** **None (Zero Server-Side Neural Processing).** Vercel serves static, pre-computed benchmark results for the preview cohort files.
+* **Full Application Repository:** [https://github.com/gitruparel/NeuroFramework-ai](https://github.com/gitruparel/NeuroFramework-ai) (contains live 3D Conv3D-CBAM neural processing, custom NIfTI ingestion, and PyTorch training pipelines).
+* **Web Preview Repository:** [https://github.com/gitruparel/NeuroFramework-web](https://github.com/gitruparel/NeuroFramework-web)
+* **Hosting Platform:** Vercel (Edge Static CDN with Rewrites)
 * **Primary Paradigm:** 3-Stream Multi-Planar Orthogonal 3D Convolutions with Dual-Domain CBAM Attention and Single-Page Medical-Grade Reporting.
 * **Academic Reference:** Hammash, N. M., & Younis, M. C. (2026). A Hierarchical Multi-View Deep Learning Framework for Autism Classification Using Structural and Functional MRI. MDPI Journal of Imaging, 12(3), 109.
 

@@ -16,7 +16,7 @@
       <div class="app-logo">
         <span class="logo-icon">🧠</span>
         <div class="logo-text">
-          <span class="brand-title">NeuroFramework <span class="badge-tech">3D-sMRI</span></span>
+          <span class="brand-title">NeuroFramework <span class="badge-tech">3D-sMRI</span> <span class="badge-preview">Preview</span></span>
           <span class="brand-subtitle">Multi-Planar Volumetric Deep Learning Workstation</span>
         </div>
       </div>
@@ -38,8 +38,30 @@
       <button class="btn-icon" id="btn-show-methodology" title="View Methodology & Benchmark Specs">
         <span>📖 Specs</span>
       </button>
+      <a href="https://github.com/gitruparel/NeuroFramework-ai" target="_blank" rel="noopener noreferrer" class="btn-github-app" title="Access Full Application (NeuroFramework-ai)">
+        <svg class="github-icon" viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+          <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+        </svg>
+        <span>Full App Repo ↗</span>
+      </a>
     </div>
   </header>
+
+  <!-- Top Preview Notice Banner -->
+  <aside class="preview-notification-banner" aria-label="Web Preview Notice">
+    <div class="banner-inner">
+      <div class="banner-content">
+        <span class="banner-pill">Web Preview</span>
+        <span class="banner-text">
+          You are viewing an interactive <strong>preview</strong> of the full NeuroFramework application. To ensure instantaneous loading without server-side GPU neural processing on Vercel, results for the 9 preloaded ABIDE-I cohort scans are pre-computed. To process custom scans with live neural processing or inspect full model training pipelines, refer to the <a href="https://github.com/gitruparel/NeuroFramework-ai" target="_blank" rel="noopener noreferrer" class="banner-link">NeuroFramework-ai repository ↗</a>.
+        </span>
+      </div>
+      <a href="https://github.com/gitruparel/NeuroFramework-ai" target="_blank" rel="noopener noreferrer" class="btn-banner-action">
+        <span>View Full AI Repo</span>
+        <span class="arrow">&rarr;</span>
+      </a>
+    </div>
+  </aside>
 
   <!-- Main Workstation Layout -->
   <main class="workstation-container">
@@ -52,13 +74,21 @@
           <span class="badge-soft">Input Stage</span>
         </div>
 
+        <!-- Web Preview Mode Notice -->
+        <div class="preview-info-box">
+          <span class="preview-info-icon">ℹ️</span>
+          <div class="preview-info-text">
+            <strong>Preview Environment:</strong> Server-side neural processing is disabled on Vercel. Results for preloaded benchmark scans are pre-computed. To process custom scans with live neural processing, refer to the <a href="https://github.com/gitruparel/NeuroFramework-ai" target="_blank" rel="noopener noreferrer">NeuroFramework-ai full application ↗</a>.
+          </div>
+        </div>
+
         <!-- Hero Upload Area -->
         <div class="dropzone" id="mri-dropzone">
           <input type="file" id="mri-file-input" accept=".nii,.nii.gz,.npy" hidden>
           <div class="dropzone-content">
             <div class="dropzone-icon">📥</div>
             <p class="dropzone-main-text">Drag & drop structural MRI scan</p>
-            <p class="dropzone-sub-text">Accepts <code>.nii</code>, <code>.nii.gz</code> (Raw) or <code>.npy</code> (Tensor)</p>
+            <p class="dropzone-sub-text">Accepts <code>.nii</code>, <code>.nii.gz</code> or <code>.npy</code> (Full app needed for live processing)</p>
             <button type="button" class="btn btn-secondary btn-sm" id="btn-browse-file">Browse Computer</button>
           </div>
           <div class="file-loaded-view hidden" id="file-loaded-indicator">
@@ -616,6 +646,9 @@
           <div class="legal-box">
             <strong>LEGAL / REGULATORY DISCLAIMER:</strong>
             <p>This document is an investigational software output produced for neuroimaging research purposes under the ABIDE-I benchmark framework. It is NOT cleared as a diagnostic medical device for autonomous clinical triage. Final clinical assessments must be performed by a board-certified neuroradiologist.</p>
+            <p style="margin-top: 4px; font-size: 8px; color: var(--text-muted);">
+              <strong>Platform Notice:</strong> Generated in NeuroFramework Web Preview Workstation (Vercel Edge). For the complete application with live 3D Conv3D-CBAM neural processing & end-to-end NIfTI pipelines, see <a href="https://github.com/gitruparel/NeuroFramework-ai" target="_blank" rel="noopener noreferrer">https://github.com/gitruparel/NeuroFramework-ai</a>.
+            </p>
           </div>
         </div>
 
@@ -631,6 +664,36 @@
         <button class="btn-modal-close" id="btn-close-modal">✕</button>
       </div>
       <div class="modal-body">
+        <div class="modal-section preview-architecture-box">
+          <h4>Web Preview vs. Full Application Architecture</h4>
+          <p>This deployment is an optimized <strong>lightweight web preview</strong> of the complete NeuroFramework ecosystem:</p>
+          <div class="specs-comparison-grid">
+            <div class="comparison-card">
+              <span class="comp-badge web">Web Preview (This Site)</span>
+              <ul>
+                <li>Hosted on Vercel Edge CDN for instant global access.</li>
+                <li>Zero server-side neural processing overhead on Vercel.</li>
+                <li>Pre-computed 50-slice multi-planar tensors for 9 ABIDE-I cohort subjects.</li>
+                <li>Interactive tri-planar 60fps scrubbing & CBAM attention mapping.</li>
+                <li>Single-page medical report generation.</li>
+              </ul>
+            </div>
+            <div class="comparison-card">
+              <span class="comp-badge full">Full Application (NeuroFramework-ai)</span>
+              <ul>
+                <li>Complete autonomous PyTorch 3D deep learning pipeline.</li>
+                <li>Live raw NIfTI (<code>.nii</code>, <code>.nii.gz</code>) file ingestion & parsing.</li>
+                <li>Adaptive Otsu brain masking & N4 bias field correction.</li>
+                <li>Live 3-Stream Conv3D-CBAM GPU neural inference.</li>
+                <li>Full model training scripts, 5-fold CV & focal loss.</li>
+              </ul>
+              <a href="https://github.com/gitruparel/NeuroFramework-ai" target="_blank" rel="noopener noreferrer" class="btn-comp-link">
+                Access NeuroFramework-ai on GitHub ↗
+              </a>
+            </div>
+          </div>
+        </div>
+
         <div class="modal-section">
           <h4>Peer-Reviewed Reference</h4>
           <p><strong>Hammash, N. M., & Younis, M. C. (2026).</strong> <em>A Hierarchical Multi-View Deep Learning Framework for Autism Classification Using Structural and Functional MRI.</em> MDPI Journal of Imaging, 12(3), 109.</p>
@@ -671,6 +734,36 @@
             <li><strong>3D CBAM:</strong> Dynamic channel attention and 3D spatial attention map extraction.</li>
             <li><strong>Adaptive Focal Loss:</strong> Binary focal loss (&gamma; = 2.0, &alpha; = 0.25) preventing class collapse.</li>
           </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Custom Upload Guidance Modal -->
+  <div class="modal-backdrop hidden" id="modal-custom-upload">
+    <div class="modal-window modal-custom-upload">
+      <div class="modal-header">
+        <h3 class="modal-title">Web Preview Notice</h3>
+        <button class="btn-modal-close" id="btn-close-custom-upload">✕</button>
+      </div>
+      <div class="modal-body custom-upload-content">
+        <span class="custom-upload-icon">⚡</span>
+        <h4 class="custom-upload-title">Live Neural Processing Requires Full Application</h4>
+        <p class="custom-upload-desc">
+          This web deployment on Vercel is a <strong>lightweight preview</strong> engineered without server-side GPU neural processing. It provides verified pre-computed volumetric results for the 9 preloaded ABIDE-I benchmark cohort scans.
+          <br><br>
+          To run live 3D neural processing on custom NIfTI scans (including Otsu skull stripping, N4 bias field correction, and 3-Stream Conv3D-CBAM inference), please refer to the <strong>NeuroFramework-ai</strong> full application repository.
+        </p>
+        <div class="custom-upload-actions">
+          <a href="https://github.com/gitruparel/NeuroFramework-ai" target="_blank" rel="noopener noreferrer" class="btn-modal-fullapp">
+            <svg class="github-icon" viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+              <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+            </svg>
+            <span>Open NeuroFramework-ai Repository ↗</span>
+          </a>
+          <button type="button" class="btn-modal-demo" id="btn-select-sample-from-modal">
+            <span>🔬 Test Preloaded ABIDE-I Cohort Sample</span>
+          </button>
         </div>
       </div>
     </div>
