@@ -125,6 +125,101 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   // --------------------------------------------------------------------------
+  // Volumetric Multi-Planar Sweep Animator (Z -> Y -> X S-Curve)
+  // --------------------------------------------------------------------------
+  const sweepAnimators = {
+    axial: { reqId: null, timerId: null },
+    coronal: { reqId: null, timerId: null },
+    sagittal: { reqId: null, timerId: null }
+  };
+
+  function stopSweep(plane) {
+    if (!sweepAnimators[plane]) return;
+    if (sweepAnimators[plane].timerId) {
+      clearTimeout(sweepAnimators[plane].timerId);
+      sweepAnimators[plane].timerId = null;
+    }
+    if (sweepAnimators[plane].reqId) {
+      cancelAnimationFrame(sweepAnimators[plane].reqId);
+      sweepAnimators[plane].reqId = null;
+    }
+  }
+
+  function stopAllSweeps() {
+    stopSweep('axial');
+    stopSweep('coronal');
+    stopSweep('sagittal');
+  }
+
+  // Smooth S-Curve (slower at start and end of path, faster in the middle)
+  function easeInOutCubic(t) {
+    return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  }
+
+  function animatePlaneSweep(plane, delay = 0) {
+    stopSweep(plane);
+
+    const slider = plane === 'axial' ? el.sliderAxial :
+                   plane === 'coronal' ? el.sliderCoronal : el.sliderSagittal;
+
+    const fwdDuration = 900; // ms to travel 1 -> 50
+    const revDuration = 650; // ms to return 50 -> 25
+    const totalDuration = fwdDuration + revDuration;
+
+    sweepAnimators[plane].timerId = setTimeout(() => {
+      sweepAnimators[plane].timerId = null;
+      let startTime = null;
+
+      function step(now) {
+        if (!startTime) startTime = now;
+        const elapsed = now - startTime;
+
+        let targetSlice = 1;
+        if (elapsed <= fwdDuration) {
+          const progress = Math.min(1, Math.max(0, elapsed / fwdDuration));
+          const eased = easeInOutCubic(progress);
+          targetSlice = Math.round(1 + 49 * eased);
+        } else if (elapsed <= totalDuration) {
+          const progress = Math.min(1, Math.max(0, (elapsed - fwdDuration) / revDuration));
+          const eased = easeInOutCubic(progress);
+          targetSlice = Math.round(50 - 25 * eased);
+        } else {
+          targetSlice = 25;
+        }
+
+        targetSlice = Math.max(1, Math.min(targetSlice, state.totalSlices));
+
+        if (state.currentSlices[plane] !== targetSlice) {
+          state.currentSlices[plane] = targetSlice;
+          slider.value = targetSlice;
+          renderSlice(plane, targetSlice);
+        }
+
+        if (elapsed < totalDuration) {
+          sweepAnimators[plane].reqId = requestAnimationFrame(step);
+        } else {
+          sweepAnimators[plane].reqId = null;
+          state.currentSlices[plane] = 25;
+          slider.value = 25;
+          renderSlice(plane, 25);
+        }
+      }
+
+      sweepAnimators[plane].reqId = requestAnimationFrame(step);
+    }, delay);
+  }
+
+  function launchVolumetricSweepAnimation() {
+    stopAllSweeps();
+    // 1. Start with Z-axis (Axial) smoothly traveling 1 -> 50 -> 25
+    animatePlaneSweep('axial', 80);
+    // 2. Shortly after Z starts, Y-axis (Coronal) does the same
+    animatePlaneSweep('coronal', 420);
+    // 3. Shortly after Y starts, X-axis (Sagittal) does the same
+    animatePlaneSweep('sagittal', 760);
+  }
+
+  // --------------------------------------------------------------------------
   // 1. Initial System Setup & Telemetry
   // --------------------------------------------------------------------------
   async function initSystem() {
@@ -172,6 +267,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // When selecting a demo scan, immediately display its raw MRI preview!
   el.demoSelect.addEventListener('change', () => {
+    stopAllSweeps();
     const dId = el.demoSelect.value;
     if (dId && state.demoCatalog[dId]) {
       state.activeDemoId = dId;
@@ -218,6 +314,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    stopAllSweeps();
     state.isProcessing = true;
     el.btnRunAnalysis.disabled = true;
     el.pipelineBadge.textContent = 'Processing';
@@ -319,27 +416,34 @@ document.addEventListener('DOMContentLoaded', () => {
     el.emptyCoronal.classList.add('hidden');
     el.emptySagittal.classList.add('hidden');
 
-    // 5. Enable Sliders & Toggles
+    // 5. Enable Sliders & Activate Default CBAM Attention Mode
+    state.showAttention = true;
+    el.toggleAttention.checked = true;
+    el.toggleAttention.disabled = false;
+    el.attentionCallout.classList.remove('hidden');
+
     [el.sliderAxial, el.sliderCoronal, el.sliderSagittal].forEach(sl => {
       sl.disabled = false;
       sl.max = state.totalSlices;
-      sl.value = Math.floor(state.totalSlices / 2);
+      sl.value = 1;
     });
-    state.currentSlices = { axial: 25, coronal: 25, sagittal: 25 };
+    state.currentSlices = { axial: 1, coronal: 1, sagittal: 1 };
 
-    el.toggleAttention.disabled = false;
     el.btnExport.disabled = false;
 
-    // 6. Render Center Viewports
-    renderSlice('axial', state.currentSlices.axial);
-    renderSlice('coronal', state.currentSlices.coronal);
-    renderSlice('sagittal', state.currentSlices.sagittal);
+    // 6. Initial Render at Slice 1 (CBAM Attention Enabled)
+    renderSlice('axial', 1);
+    renderSlice('coronal', 1);
+    renderSlice('sagittal', 1);
 
     // 7. Update Analytics Panel
     updateAnalyticsDisplay(data);
 
     // 8. Update Preprocessing QC Checklist
     updateQCChecklist(data.preprocessing_qc);
+
+    // 9. Launch Cinematic Volumetric Sweep (Z -> Y -> X S-Curve)
+    launchVolumetricSweepAnimation();
   }
 
   function preloadPlaneImages(plane, sliceUrls, attentionUrls) {
@@ -409,18 +513,21 @@ document.addEventListener('DOMContentLoaded', () => {
   // 6. Interactive Controls (Sliders, Steps, Keyboard, Attention)
   // --------------------------------------------------------------------------
   
-  // Slider Scrubbing
+  // Slider Scrubbing (Manual interaction immediately interrupts sweep)
   el.sliderAxial.addEventListener('input', (e) => {
+    stopSweep('axial');
     state.currentSlices.axial = parseInt(e.target.value, 10);
     renderSlice('axial', state.currentSlices.axial);
   });
 
   el.sliderCoronal.addEventListener('input', (e) => {
+    stopSweep('coronal');
     state.currentSlices.coronal = parseInt(e.target.value, 10);
     renderSlice('coronal', state.currentSlices.coronal);
   });
 
   el.sliderSagittal.addEventListener('input', (e) => {
+    stopSweep('sagittal');
     state.currentSlices.sagittal = parseInt(e.target.value, 10);
     renderSlice('sagittal', state.currentSlices.sagittal);
   });
@@ -429,6 +536,7 @@ document.addEventListener('DOMContentLoaded', () => {
   el.btnSteps.forEach(btn => {
     btn.addEventListener('click', () => {
       const plane = btn.getAttribute('data-target');
+      stopSweep(plane);
       const dir = parseInt(btn.getAttribute('data-dir'), 10);
       const slider = plane === 'axial' ? el.sliderAxial :
                      plane === 'coronal' ? el.sliderCoronal : el.sliderSagittal;

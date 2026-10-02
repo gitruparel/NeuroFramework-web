@@ -5,7 +5,7 @@
 **NeuroFramework 3D-sMRI Web Preview** is a lightweight, interactive, browser-based neuroimaging research workstation for 3D structural Magnetic Resonance Imaging (sMRI) volumetric deep learning. It demonstrates Autism Spectrum Disorder (ASD) neuroanatomical biomarker evaluation on the benchmark **Autism Brain Imaging Data Exchange (ABIDE-I)** cohort (N=395).
 
 * **Edition:** Web Preview (Demonstration of Full Application)
-* **Custom Domain Status:** Pending / Not yet connected to domain (serving via Vercel deployment URL).
+* **Custom Domain Status:** Pending / Configurable via Cloudflare / Vercel (e.g., `neuroframework.swayamruparel.com`).
 * **Neural Processing on Vercel:** **None (Zero Server-Side Neural Processing).** Vercel serves static, pre-computed benchmark results for the preview cohort files.
 * **Full Application Repository:** [https://github.com/gitruparel/NeuroFramework-ai](https://github.com/gitruparel/NeuroFramework-ai) (contains live 3D Conv3D-CBAM neural processing, custom NIfTI ingestion, and PyTorch training pipelines).
 * **Web Preview Repository:** [https://github.com/gitruparel/NeuroFramework-web](https://github.com/gitruparel/NeuroFramework-web)
@@ -30,6 +30,8 @@ The web preview project is engineered for zero-dependency, ultra-low-latency dep
 * **Engine & Logic:** Vanilla ES6+ JavaScript (`app.js`):
   * Dual-layer HTML5 2D Canvas blitting (`drawImage`) for 60fps slice scrubbing.
   * Image preloading cache for instant response without frame lag.
+  * Realistic 6-stage clinical deep learning pipeline simulation (~2.7s) before rendering analysis results.
+  * Staggered volumetric sweep animation engine across Z, Y, and X axes using cubic ease-in-out S-curve velocity profiles.
   * Dual-mode client API engine (attempts live backend, automatically falls back to edge-cached static payloads on Vercel).
 
 ### B. Vercel Edge Serverless & Static CDN
@@ -65,7 +67,19 @@ All 9 demo scans are derived from genuine full-resolution 3D T1-weighted NIfTI v
 
 ## 4. Key Workstation Innovations
 
-### 1. Original / Raw Input MRI Inspection Frame
+### 1. Volumetric Multi-Planar S-Curve Sweep Animation
+* **Sequential Staggered Traversal:** The moment analysis runs, the viewports automatically sweep across the volume:
+  1. **Z-axis (Axial):** Begins at slice 1 &rarr; accelerates to slice 50 &rarr; descends to slice 25.
+  2. **Y-axis (Coronal):** Initiates shortly after Z begins and performs the identical 1 &rarr; 50 &rarr; 25 sweep.
+  3. **X-axis (Sagittal):** Initiates shortly after Y begins and performs the identical 1 &rarr; 50 &rarr; 25 sweep.
+* **Speed Curve Smoothing:** Employs a cubic S-curve easing model ($f(t) = 4t^3$ for $t < 0.5$, and $1 - \frac{(-2t + 2)^3}{2}$ for $t \ge 0.5$) providing gentle acceleration at boundaries (slices 1, 50, 25) and peak traversal velocity in the mid-range.
+* **Immediate Manual Scrub Override:** Any manual slider interaction or step button press immediately halts the active sweep on that plane, giving researchers instantaneous responsive control.
+
+### 2. Default CBAM Attention Mode
+* Activates the 3D Convolutional Block Attention Module spatial attention overlay (`showAttention = true`) automatically upon analysis completion.
+* Provides immediate clinical explainability highlighting the corpus callosum, prefrontal cortex, superior temporal sulcus, and cerebellum.
+
+### 3. Original / Raw Input MRI Inspection Frame
 Positioned at the top of the Center Panel above the orthogonal viewports. Extracts the highest-contrast anatomical slice directly from source NIfTI files prior to preprocessing:
 * Visualizes intact cranial structures (scalp fat, skull bone, dura mater).
 * Features a 6-parameter technical imaging specification:
@@ -76,21 +90,17 @@ Positioned at the top of the Center Panel above the orthogonal viewports. Extrac
   * **Voxel Resolution:** `1.0 mm Isotropic (Raw Mesh)`
   * **Volume Format:** `NIfTI-1 Header Verified`
 
-### 2. Tri-Planar Multi-Stream Radiological Viewports
+### 4. Tri-Planar Multi-Stream Radiological Viewports
 * Displays 50 standardized 224x224 slices across **Axial (Z)**, **Coronal (Y)**, and **Sagittal (X)** orthogonal projections post-Otsu skull stripping and N4 bias field correction.
 * Pure radiological grayscale standard (`#000000` to `#ffffff`).
 * Independent slice range scrubbing (slices 1 to 50) with keyboard step controls.
 
-### 3. Spatial CBAM Attention Overlay
-* Directly visualizes 3D Convolutional Block Attention Module (`sa` spatial attention) activations.
-* Highlighted overlay targets key neurodevelopmental structures: corpus callosum, prefrontal cortex, temporal sulcus, and cerebellar vermis.
-
-### 4. Multi-View Representation Analysis (L2 Activation Norms)
+### 5. Multi-View Representation Analysis (L2 Activation Norms)
 * Quantifies the relative contribution of each anatomical stream:
   $$\text{Relative Share (\%)} = \frac{\|\mathbf{f}_v\|_2}{\sum_{k} \|\mathbf{f}_k\|_2} \times 100\%$$
 * Visualized via animated proportional progress meters.
 
-### 5. Strict Single-Page Medical-Grade PDF Dossier
+### 6. Strict Single-Page Medical-Grade PDF Dossier
 * Export modal triggered via **"📄 Generate Medical Report"**.
 * Formatted strictly for **1 single page** on A4/Letter paper via `@page { size: A4 portrait; margin: 6mm 10mm; }`.
 * Zero phantom height: uses `body > *:not(#modal-report) { display: none !important; }` to eliminate trailing blank pages.
@@ -111,7 +121,7 @@ Positioned at the top of the Center Panel above the orthogonal viewports. Extrac
 neuroframework/
 ├── index.html                           # Single-page research workstation web application
 ├── style.css                            # Clean research design system + 1-page print stylesheet
-├── app.js                               # Workstation controller (dual-mode static/live engine)
+├── app.js                               # Workstation controller (volumetric sweep, CBAM, dual-mode engine)
 ├── vercel.json                          # Vercel deployment routing & security headers
 ├── package.json                         # Project metadata
 ├── README.md                            # Public repository documentation
