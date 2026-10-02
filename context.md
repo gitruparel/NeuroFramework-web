@@ -113,6 +113,12 @@ Positioned at the top of the Center Panel above the orthogonal viewports. Extrac
   6. Preprocessing pipeline verification audit.
   7. Board-certified neuroradiology investigational disclaimer and sign-off block.
 
+### 7. Mobile & Touchscreen Device Optimization
+* **Fluid Single-Column Stack:** Automatically collapses the 3-panel workstation into a responsive, intuitive vertical flow on devices $\le 768\text{px}$, allowing users on smartphones (iPhone, Android) to comfortably evaluate MRI scans.
+* **Large Full-Width Orthogonal Canvases:** Eliminates multi-column canvas compression by stacking Axial (Z), Coronal (Y), and Sagittal (X) viewports in full fidelity with up to 320px high-contrast canvases.
+* **Touch-Friendly Controls:** Step buttons (`◀` / `▶`) enlarged to 38px touch targets, sliders with 22px thumbs, and form inputs formatted at 16px to prevent iOS Safari auto-zoom.
+* **Compact Responsive Header & Modals:** Adapts branding badges, telemetry pills, and medical report dossiers with clean scrolling and zero horizontal page overflow.
+
 ---
 
 ## 5. Repository File Structure

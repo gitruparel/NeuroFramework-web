@@ -19,6 +19,7 @@ Replicating and adapting the peer-reviewed methodology of **Hammash & Younis (MD
 - **Real Anatomical MRI Previews:** Unstripped pre-processing baseline inspection directly from raw T1-weighted scans.
 - **Multi-University Validation Cohort:** 9 representative subjects across NYU Langone, Univ. of Michigan (UM_1), Univ. of Utah (USM), UCLA, Univ. of Pittsburgh (Pitt), and Caltech.
 - **Medical-Grade Clinical AI Dossier:** Single-page printable PDF report with quantitative L2 activation norms and QC audit verification.
+- **Full Mobile & Touch Optimization:** Native responsive layout for smartphones and tablets with stacked high-contrast viewports, 44px touch-accessible controls, and iOS-safe input scaling.
 
 ---
 
@@ -31,6 +32,7 @@ Replicating and adapting the peer-reviewed methodology of **Hammash & Younis (MD
 | **Cohort Results** | Pre-computed & Hardcoded | Live Model Inference |
 | **Volumetric Multi-Planar Sweep** | ✅ Staggered Z &rarr; Y &rarr; X S-Curve | Viewport Scrubbing |
 | **Default Viewport Mode** | ✅ CBAM Attention Enabled | Configurable |
+| **Mobile & Touch Optimization** | ✅ Full Smartphone & Tablet Responsive | Desktop Workstation |
 | **Custom Scan Processing** | Preview Guidance Only | Full End-to-End Execution |
 | **Otsu Skull Stripping & N4 Bias** | Pre-rendered | Automated Python Pipeline |
 | **Model Training & Loss Functions** | N/A | Full Conv3D + CBAM + Focal Loss |
