@@ -21,7 +21,7 @@ The web preview project is engineered for zero-dependency, ultra-low-latency dep
 
 ### A. Frontend Architecture
 * **Markup:** Semantic HTML5 (`index.html`) implementing a structured 3-panel research layout:
-  * **Left Panel (26% Width):** Scan ingestion dropzone, preloaded multi-university cohort picker, integer patient demographic fields, and animated 6-stage pipeline progress stepper.
+  * **Left Panel (26% Width):** Preloaded multi-university ABIDE-I cohort picker, integer patient demographic fields, and animated 6-stage pipeline progress stepper.
   * **Center Panel (48% Width):** 
     * *Top Section:* Original / Raw Input MRI Scan (center-slice pre-processing baseline with intact scalp/cranium and 6-parameter clinical imaging specifications).
     * *Bottom Section:* Tri-Planar Orthogonal Radiological Viewports (Axial, Coronal, Sagittal) with scrubbers and CBAM attention toggle.

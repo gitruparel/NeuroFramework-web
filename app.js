@@ -7,7 +7,6 @@
 document.addEventListener('DOMContentLoaded', () => {
   // State Store
   const state = {
-    activeFile: null,
     activeDemoId: null,
     currentSlices: { axial: 25, coronal: 25, sagittal: 25 },
     totalSlices: 50,
@@ -26,18 +25,8 @@ document.addEventListener('DOMContentLoaded', () => {
     btnShowSpecs: document.getElementById('btn-show-methodology'),
     modalSpecs: document.getElementById('modal-specs'),
     btnCloseModal: document.getElementById('btn-close-modal'),
-    modalCustomUpload: document.getElementById('modal-custom-upload'),
-    btnCloseCustomUpload: document.getElementById('btn-close-custom-upload'),
-    btnSelectSampleFromModal: document.getElementById('btn-select-sample-from-modal'),
 
-    // Ingestion
-    dropzone: document.getElementById('mri-dropzone'),
-    fileInput: document.getElementById('mri-file-input'),
-    btnBrowse: document.getElementById('btn-browse-file'),
-    fileLoadedView: document.getElementById('file-loaded-indicator'),
-    loadedFileName: document.getElementById('loaded-file-name'),
-    loadedFileSize: document.getElementById('loaded-file-size'),
-    btnClearFile: document.getElementById('btn-clear-file'),
+    // Cohort Selection
     demoSelect: document.getElementById('demo-scan-select'),
     btnRunAnalysis: document.getElementById('btn-run-analysis'),
 
@@ -167,92 +156,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // --------------------------------------------------------------------------
-  // 2. Ingestion & Input Handling
+  // 2. Cohort Selection & Input Handling
   // --------------------------------------------------------------------------
-
-  // Browse Button
-  el.btnBrowse.addEventListener('click', (e) => {
-    e.stopPropagation();
-    el.fileInput.click();
-  });
-
-  // Dropzone Click
-  el.dropzone.addEventListener('click', () => {
-    if (!state.activeFile) el.fileInput.click();
-  });
-
-  // Drag and Drop
-  ['dragenter', 'dragover'].forEach(name => {
-    el.dropzone.addEventListener(name, (e) => {
-      e.preventDefault();
-      el.dropzone.classList.add('dragover');
-    });
-  });
-
-  ['dragleave', 'drop'].forEach(name => {
-    el.dropzone.addEventListener(name, (e) => {
-      e.preventDefault();
-      el.dropzone.classList.remove('dragover');
-    });
-  });
-
-  el.dropzone.addEventListener('drop', (e) => {
-    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      handleSelectedFile(e.dataTransfer.files[0]);
-    }
-  });
-
-  el.fileInput.addEventListener('change', (e) => {
-    if (e.target.files && e.target.files.length > 0) {
-      handleSelectedFile(e.target.files[0]);
-    }
-  });
-
-  function handleSelectedFile(file) {
-    const name = file.name.toLowerCase();
-    if (!name.endsWith('.nii') && !name.endsWith('.nii.gz') && !name.endsWith('.npy')) {
-      alert('Please upload a NIfTI (.nii, .nii.gz) or NumPy (.npy) file.');
-      return;
-    }
-
-    state.activeFile = file;
-    state.activeDemoId = null;
-    el.demoSelect.value = '';
-
-    el.loadedFileName.textContent = file.name;
-    el.loadedFileSize.textContent = (file.size / (1024 * 1024)).toFixed(2) + ' MB';
-    
-    el.dropzone.querySelector('.dropzone-content').classList.add('hidden');
-    el.fileLoadedView.classList.remove('hidden');
-    el.btnRunAnalysis.disabled = false;
-
-    // Show indicator in raw preview
-    el.rawDimBadge.textContent = 'Upload Ready (Preview Mode)';
-    el.rawEmptyPlaceholder.innerHTML = `<span><strong>${file.name}</strong> loaded.<br>Click "Run Analysis" to view web preview details or select a pre-computed cohort sample.</span>`;
-
-    // Inform user of preview environment
-    if (el.modalCustomUpload) {
-      el.modalCustomUpload.classList.remove('hidden');
-    }
-  }
-
-  el.btnClearFile.addEventListener('click', (e) => {
-    e.stopPropagation();
-    state.activeFile = null;
-    el.fileInput.value = '';
-    el.fileLoadedView.classList.add('hidden');
-    el.dropzone.querySelector('.dropzone-content').classList.remove('hidden');
-    el.btnRunAnalysis.disabled = !state.activeDemoId;
-
-    el.rawImg.style.display = 'none';
-    el.rawEmptyPlaceholder.style.display = 'flex';
-    el.rawEmptyPlaceholder.innerHTML = `
-      <span class="raw-placeholder-icon">🧠</span>
-      <span class="raw-placeholder-title">No Scan Loaded</span>
-      <span class="raw-placeholder-desc">Select a preloaded research subject or upload a NIfTI file (.nii, .nii.gz) on the left panel to inspect the unstripped anatomical baseline.</span>
-    `;
-    el.rawDimBadge.textContent = 'Awaiting Scan Selection';
-  });
 
   // When selecting a demo scan, immediately display its raw MRI preview!
   el.demoSelect.addEventListener('change', () => {
@@ -260,13 +165,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (dId && state.demoCatalog[dId]) {
       state.activeDemoId = dId;
       const demo = state.demoCatalog[dId];
-
-      if (state.activeFile) {
-        state.activeFile = null;
-        el.fileInput.value = '';
-        el.fileLoadedView.classList.add('hidden');
-        el.dropzone.querySelector('.dropzone-content').classList.remove('hidden');
-      }
 
       // Display Raw MRI Preview immediately
       if (demo.raw_preview) {
@@ -303,14 +201,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // --------------------------------------------------------------------------
   el.btnRunAnalysis.addEventListener('click', async () => {
     if (state.isProcessing) return;
-
-    // In web preview mode, live neural processing on custom uploads requires the full application
-    if (state.activeFile) {
-      if (el.modalCustomUpload) {
-        el.modalCustomUpload.classList.remove('hidden');
-      }
-      return;
-    }
 
     if (!state.activeDemoId) {
       alert('Please select a verified ABIDE-I cohort sample to evaluate.');
@@ -770,41 +660,6 @@ Investigational research software under ABIDE-I benchmark protocol (Hammash & Yo
   el.modalSpecs.addEventListener('click', (e) => {
     if (e.target === el.modalSpecs) el.modalSpecs.classList.add('hidden');
   });
-
-  // Custom Upload Guidance Modal Handlers
-  if (el.btnCloseCustomUpload) {
-    el.btnCloseCustomUpload.addEventListener('click', () => {
-      el.modalCustomUpload.classList.add('hidden');
-    });
-  }
-
-  if (el.modalCustomUpload) {
-    el.modalCustomUpload.addEventListener('click', (e) => {
-      if (e.target === el.modalCustomUpload) el.modalCustomUpload.classList.add('hidden');
-    });
-  }
-
-  if (el.btnSelectSampleFromModal) {
-    el.btnSelectSampleFromModal.addEventListener('click', () => {
-      if (el.modalCustomUpload) el.modalCustomUpload.classList.add('hidden');
-
-      // Clear uploaded file state if any
-      if (state.activeFile) {
-        state.activeFile = null;
-        el.fileInput.value = '';
-        el.fileLoadedView.classList.add('hidden');
-        el.dropzone.querySelector('.dropzone-content').classList.remove('hidden');
-      }
-
-      // Automatically select first demo if none selected
-      const demoKeys = Object.keys(state.demoCatalog);
-      if (demoKeys.length > 0) {
-        const targetId = state.activeDemoId || demoKeys[0];
-        el.demoSelect.value = targetId;
-        el.demoSelect.dispatchEvent(new Event('change'));
-      }
-    });
-  }
 
   // Initialize
   initSystem();

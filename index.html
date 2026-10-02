@@ -47,71 +47,31 @@
     </div>
   </header>
 
-  <!-- Top Preview Notice Banner -->
-  <aside class="preview-notification-banner" aria-label="Web Preview Notice">
-    <div class="banner-inner">
-      <div class="banner-content">
-        <span class="banner-pill">Web Preview</span>
-        <span class="banner-text">
-          You are viewing an interactive <strong>preview</strong> of the full NeuroFramework application. To ensure instantaneous loading without server-side GPU neural processing on Vercel, results for the 9 preloaded ABIDE-I cohort scans are pre-computed. To process custom scans with live neural processing or inspect full model training pipelines, refer to the <a href="https://github.com/gitruparel/NeuroFramework-ai" target="_blank" rel="noopener noreferrer" class="banner-link">NeuroFramework-ai repository ↗</a>.
-        </span>
-      </div>
-      <a href="https://github.com/gitruparel/NeuroFramework-ai" target="_blank" rel="noopener noreferrer" class="btn-banner-action">
-        <span>View Full AI Repo</span>
-        <span class="arrow">&rarr;</span>
-      </a>
-    </div>
-  </aside>
-
   <!-- Main Workstation Layout -->
   <main class="workstation-container">
     
-    <!-- LEFT PANEL: Scan Ingestion & Raw Preview (26% Width) -->
+    <!-- LEFT PANEL: Preloaded Cohort & Demographics (26% Width) -->
     <aside class="panel panel-left">
       <div class="panel-card upload-card">
         <div class="card-header">
-          <h2 class="card-title">Scan Ingestion</h2>
-          <span class="badge-soft">Input Stage</span>
-        </div>
-
-        <!-- Web Preview Mode Notice -->
-        <div class="preview-info-box">
-          <span class="preview-info-icon">ℹ️</span>
-          <div class="preview-info-text">
-            <strong>Preview Environment:</strong> Server-side neural processing is disabled on Vercel. Results for preloaded benchmark scans are pre-computed. To process custom scans with live neural processing, refer to the <a href="https://github.com/gitruparel/NeuroFramework-ai" target="_blank" rel="noopener noreferrer">NeuroFramework-ai full application ↗</a>.
-          </div>
-        </div>
-
-        <!-- Hero Upload Area -->
-        <div class="dropzone" id="mri-dropzone">
-          <input type="file" id="mri-file-input" accept=".nii,.nii.gz,.npy" hidden>
-          <div class="dropzone-content">
-            <div class="dropzone-icon">📥</div>
-            <p class="dropzone-main-text">Drag & drop structural MRI scan</p>
-            <p class="dropzone-sub-text">Accepts <code>.nii</code>, <code>.nii.gz</code> or <code>.npy</code> (Full app needed for live processing)</p>
-            <button type="button" class="btn btn-secondary btn-sm" id="btn-browse-file">Browse Computer</button>
-          </div>
-          <div class="file-loaded-view hidden" id="file-loaded-indicator">
-            <span class="file-icon">📁</span>
-            <div class="file-info-text">
-              <span class="file-name" id="loaded-file-name">scan.nii.gz</span>
-              <span class="file-size" id="loaded-file-size">14.2 MB</span>
-            </div>
-            <button class="btn-clear" id="btn-clear-file" title="Remove file">✕</button>
-          </div>
+          <h2 class="card-title">Research Cohort</h2>
+          <span class="badge-soft">ABIDE-I</span>
         </div>
 
         <!-- 1-Click Quick Demo Scans -->
         <div class="demo-section">
-          <label class="input-label" for="demo-scan-select">Or Test Preloaded Research Samples:</label>
+          <label class="input-label" for="demo-scan-select">Select a Verified Benchmark Scan:</label>
           <div class="demo-control-row">
             <select id="demo-scan-select" class="form-select">
-              <option value="" disabled selected>Select a verified ABIDE-I sample...</option>
+              <option value="" disabled selected>Select an ABIDE-I subject...</option>
             </select>
             <button class="btn btn-primary" id="btn-run-analysis" disabled>
               <span class="btn-icon-symbol">⚡</span> Run Analysis
             </button>
           </div>
+          <p class="helper-note" style="margin-top: 10px; font-size: 11.5px; color: var(--text-muted); line-height: 1.45;">
+            Web preview includes 9 multi-site benchmark subjects. To run live neural processing on custom NIfTI scans, refer to the <a href="https://github.com/gitruparel/NeuroFramework-ai" target="_blank" rel="noopener noreferrer" style="color: var(--accent-primary); text-decoration: underline; font-weight: 600;">NeuroFramework-ai repository ↗</a>.
+          </p>
         </div>
 
         <!-- Collapsible Optional Demographics -->
@@ -219,7 +179,7 @@
             <div class="raw-empty-text" id="raw-empty-placeholder">
               <span class="raw-placeholder-icon">🧠</span>
               <span class="raw-placeholder-title">No Scan Loaded</span>
-              <span class="raw-placeholder-desc">Select a preloaded research subject or upload a NIfTI file (.nii, .nii.gz) on the left panel to inspect the unstripped anatomical baseline.</span>
+              <span class="raw-placeholder-desc">Select a preloaded ABIDE-I research subject on the left panel to inspect the unstripped anatomical baseline and launch tri-planar analysis.</span>
             </div>
           </div>
           <div class="raw-card-details">
@@ -734,36 +694,6 @@
             <li><strong>3D CBAM:</strong> Dynamic channel attention and 3D spatial attention map extraction.</li>
             <li><strong>Adaptive Focal Loss:</strong> Binary focal loss (&gamma; = 2.0, &alpha; = 0.25) preventing class collapse.</li>
           </ul>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Custom Upload Guidance Modal -->
-  <div class="modal-backdrop hidden" id="modal-custom-upload">
-    <div class="modal-window modal-custom-upload">
-      <div class="modal-header">
-        <h3 class="modal-title">Web Preview Notice</h3>
-        <button class="btn-modal-close" id="btn-close-custom-upload">✕</button>
-      </div>
-      <div class="modal-body custom-upload-content">
-        <span class="custom-upload-icon">⚡</span>
-        <h4 class="custom-upload-title">Live Neural Processing Requires Full Application</h4>
-        <p class="custom-upload-desc">
-          This web deployment on Vercel is a <strong>lightweight preview</strong> engineered without server-side GPU neural processing. It provides verified pre-computed volumetric results for the 9 preloaded ABIDE-I benchmark cohort scans.
-          <br><br>
-          To run live 3D neural processing on custom NIfTI scans (including Otsu skull stripping, N4 bias field correction, and 3-Stream Conv3D-CBAM inference), please refer to the <strong>NeuroFramework-ai</strong> full application repository.
-        </p>
-        <div class="custom-upload-actions">
-          <a href="https://github.com/gitruparel/NeuroFramework-ai" target="_blank" rel="noopener noreferrer" class="btn-modal-fullapp">
-            <svg class="github-icon" viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-              <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
-            </svg>
-            <span>Open NeuroFramework-ai Repository ↗</span>
-          </a>
-          <button type="button" class="btn-modal-demo" id="btn-select-sample-from-modal">
-            <span>🔬 Test Preloaded ABIDE-I Cohort Sample</span>
-          </button>
         </div>
       </div>
     </div>
