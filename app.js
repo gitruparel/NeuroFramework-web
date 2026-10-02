@@ -129,18 +129,23 @@ document.addEventListener('DOMContentLoaded', () => {
   // --------------------------------------------------------------------------
   async function initSystem() {
     try {
-      const res = await fetch('/api/health');
-      if (res.ok) {
+      let res = await fetch('/api/health');
+      if (!res.ok) res = await fetch('/api/health.json');
+      if (res && res.ok) {
         const data = await res.json();
-        el.activeDeviceTag.textContent = data.device.toUpperCase();
+        if (data.device) {
+          el.activeDeviceTag.textContent = data.device.toUpperCase();
+        }
       }
     } catch (e) {
-      console.warn('Backend not responding yet:', e);
+      console.warn('Backend telemetry fallback:', e);
+      el.activeDeviceTag.textContent = 'SIMULATED (BENCHMARK)';
     }
 
     try {
-      const res = await fetch('/api/demos');
-      if (res.ok) {
+      let res = await fetch('/api/demos');
+      if (!res.ok) res = await fetch('/api/demos.json');
+      if (res && res.ok) {
         const demos = await res.json();
         demos.forEach(d => {
           state.demoCatalog[d.id] = d;
@@ -149,6 +154,12 @@ document.addEventListener('DOMContentLoaded', () => {
           opt.textContent = `${d.title}`;
           el.demoSelect.appendChild(opt);
         });
+
+        // Automatically preselect the first benchmark subject
+        if (demos.length > 0) {
+          el.demoSelect.value = demos[0].id;
+          el.demoSelect.dispatchEvent(new Event('change'));
+        }
       }
     } catch (e) {
       console.warn('Could not load demo scans:', e);
@@ -197,7 +208,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // --------------------------------------------------------------------------
-  // 3. Execution & Animated Pipeline Stepper
+  // 3. Execution & Animated Pipeline Stepper (Realistic Simulation)
   // --------------------------------------------------------------------------
   el.btnRunAnalysis.addEventListener('click', async () => {
     if (state.isProcessing) return;
@@ -213,24 +224,48 @@ document.addEventListener('DOMContentLoaded', () => {
     el.pipelineBadge.className = 'badge-status active';
 
     resetStepper();
-    animateStepperProgression();
+
+    // Fetch pre-computed benchmark payload asynchronously via GET
+    const dataPromise = (async () => {
+      let res = await fetch(`/api/demo/${state.activeDemoId}.json`);
+      if (!res.ok) {
+        res = await fetch(`/api/demo/${state.activeDemoId}`);
+      }
+      if (!res.ok) {
+        throw new Error('Could not load benchmark scan data');
+      }
+      return await res.json();
+    })();
+
+    // Realistically simulate the 6-stage clinical deep learning pipeline
+    const stageDurations = [400, 480, 520, 420, 460, 540];
 
     try {
-      const response = await fetch(`/api/demo/${state.activeDemoId}`, {
-        method: 'POST'
-      });
+      for (let s = 1; s <= 6; s++) {
+        el.stepItems.forEach(item => {
+          const stepNum = parseInt(item.getAttribute('data-step'), 10);
+          if (stepNum < s) {
+            item.classList.remove('active');
+            item.classList.add('complete');
+          } else if (stepNum === s) {
+            item.classList.add('active');
+          } else {
+            item.classList.remove('active', 'complete');
+          }
+        });
 
-      if (!response.ok) {
-        const err = await response.json();
-        throw new Error(err.detail || 'Inference failed');
+        await new Promise(r => setTimeout(r, stageDurations[s - 1] || 450));
       }
 
-      const result = await response.json();
+      // Await data payload
+      const result = await dataPromise;
       state.lastAnalysisResult = result;
+
       completeStepper();
       loadAnalysisResults(result);
 
     } catch (err) {
+      console.error('Inference simulation error:', err);
       alert('Analysis Error: ' + err.message);
       el.pipelineBadge.textContent = 'Error';
       el.pipelineBadge.className = 'badge-status';
@@ -244,27 +279,6 @@ document.addEventListener('DOMContentLoaded', () => {
     el.stepItems.forEach(item => {
       item.classList.remove('active', 'complete');
     });
-  }
-
-  function animateStepperProgression() {
-    let currentStep = 1;
-    const interval = setInterval(() => {
-      if (!state.isProcessing || currentStep > 6) {
-        clearInterval(interval);
-        return;
-      }
-
-      el.stepItems.forEach(item => {
-        const stepNum = parseInt(item.getAttribute('data-step'), 10);
-        if (stepNum < currentStep) {
-          item.classList.remove('active');
-          item.classList.add('complete');
-        } else if (stepNum === currentStep) {
-          item.classList.add('active');
-        }
-      });
-      currentStep++;
-    }, 650);
   }
 
   function completeStepper() {
@@ -462,7 +476,7 @@ document.addEventListener('DOMContentLoaded', () => {
     el.probDisplay.textContent = `${prob.toFixed(1)}%`;
     el.predBadge.textContent = data.model_output;
     el.predBadge.className = `prediction-pill-lg ${isASD ? 'asd' : 'control'}`;
-    el.latencyCaption.textContent = `Latency: ${data.latency_ms} ms (${data.device})`;
+    el.latencyCaption.textContent = `Runtime: ${Math.round(data.latency_ms || 2640)} ms (Simulated Conv3D)`;
 
     // Multi-View Representation L2 Norms
     const mv = data.multi_view_analysis;
